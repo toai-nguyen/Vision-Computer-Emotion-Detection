@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Upload and Webcam</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>File Upload and Webcam</h1>
+      <form
+        action="/"
+        method="post"
+        enctype="multipart/form-data"
+        class="upload-form"
+      >
+        <div class="form-group">
+          <label for="fileUpload">Choose a file to upload:</label>
+          <input type="file" id="fileUpload" name="fileUpload" />
+        </div>
+        <button type="submit" class="btn">Send</button>
+      </form>
+      <div class="webcam-button">
+        <button type="button" class="btn" onclick="useWebcam()">
+          Using webcam
+        </button>
+      </div>
+      <div class="output-container">
+        {% if processed_image %}
+        <img
+          src="data:image/jpeg;base64,{{ processed_image }}"
+          class="output-image"
+        />
+        {% elif processed_video %}
+        <video width="640" height="480" controls class="output-video">
+          <source
+            src="{{ url_for('download_video', filename='processed_video.mp4') }}"
+            type="video/mp4"
+          />
+          Your browser does not support the video tag.
+        </video>
+        {% endif %}
+      </div>
+    <script>
+      function useWebcam() {
+        window.open(
+          "{{ url_for('video_feed') }}",
+          "Video Feed",
+          "width=640,height=480"
+        );
+      }
+    </script>
+  </body>
+</html>

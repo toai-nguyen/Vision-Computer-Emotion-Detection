@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webcam</title>
+  </head>
+  <body>
+    <div class="webcam-container">
+      <video id="webcam-video" width="640" height="480" autoplay></video>
+      <canvas id="webcam-canvas" width="640" height="480" style="display: none;"></canvas>
+      <button id="capture-button">Capture</button>
+    </div>
+
+    <script>
+      const video = document.getElementById('webcam-video');
+      const canvas = document.getElementById('webcam-canvas');
+      const captureButton = document.getElementById('capture-button');
+
+      // Get access to the webcam
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+        })
+        .catch(error => {
+          console.error('Error accessing webcam:', error);
+        });
+
+      // Capture the image from the webcam
+      captureButton.addEventListener('click', () => {
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/jpeg');
+
+        // Send the captured image to the server
+        fetch('/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ imageData: imageData })
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Display the processed image
+          const processedImage = document.createElement('img');
+          processedImage.src = `data:image/jpeg;base64,${data.processedImage}`;
+          document.querySelector('.showVideo').innerHTML = '';
+          document.querySelector('.showVideo').appendChild(processedImage);
+        })
+        .catch(error => {
+          console.error('Error sending image to server:', error);
+        });
+      });
+    </script>
+  </body>
+</html>
